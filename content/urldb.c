@@ -968,16 +968,16 @@ urldb_iterate_entries_host(struct search_node *parent,
 		return true;
 	}
 
+	/* Left subtree */
 	if (!urldb_iterate_entries_host(parent->left,
 					url_callback,
 					cookie_callback)) {
 		return false;
 	}
 
-	if ((parent->data->paths.children) ||
-	    ((cookie_callback) &&
-	     (parent->data->paths.cookies))) {
-		/* We have paths (or domain cookies), so iterate them */
+	/* Current host */
+	if (parent->data->paths.children ||
+	    (cookie_callback && parent->data->paths.cookies)) {
 		if (!urldb_iterate_entries_path(&parent->data->paths,
 						url_callback,
 						cookie_callback)) {
@@ -985,15 +985,11 @@ urldb_iterate_entries_host(struct search_node *parent,
 		}
 	}
 
-	if (!urldb_iterate_entries_host(parent->right,
-					url_callback,
-					cookie_callback)) {
-		return false;
-	}
-
-	return true;
+	/* Right subtree */
+	return urldb_iterate_entries_host(parent->right,
+					  url_callback,
+					  cookie_callback);
 }
-
 
 /**
  * Add a host node to the tree
